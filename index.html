@@ -1,0 +1,483 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Voilà Fashion — Dress Your Story</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;1,400&family=Jost:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+  *{margin:0;padding:0;box-sizing:border-box}
+  :root{--black:#0a0a0a;--white:#faf9f6;--gold:#c9a96e;--cream:#f0ece3;--mid:#6b6560}
+  body{font-family:'Jost',sans-serif;background:var(--black);color:var(--white);overflow-x:hidden}
+
+  nav{position:fixed;top:0;left:0;width:100%;z-index:100;display:flex;justify-content:space-between;align-items:center;padding:1.2rem 3rem;background:rgba(10,10,10,0.85);backdrop-filter:blur(12px);border-bottom:1px solid rgba(201,169,110,0.15)}
+  .logo{font-family:'Playfair Display',serif;font-size:1.6rem;letter-spacing:0.05em;color:var(--gold)}
+  .nav-links{display:flex;gap:2rem}
+  .nav-links a{color:rgba(250,249,246,0.7);text-decoration:none;font-size:0.78rem;font-weight:500;letter-spacing:0.15em;text-transform:uppercase;transition:color 0.3s}
+  .nav-links a:hover{color:var(--gold)}
+  .hamburger{display:none;flex-direction:column;gap:5px;cursor:pointer;padding:4px}
+  .hamburger span{width:22px;height:1.5px;background:var(--gold);transition:all 0.3s}
+
+  .ticker{background:var(--gold);padding:0.5rem 0;overflow:hidden}
+  .ticker-inner{display:flex;white-space:nowrap;animation:ticker 20s linear infinite}
+  .ticker-item{font-size:0.68rem;letter-spacing:0.25em;text-transform:uppercase;color:var(--black);font-weight:500;padding:0 2.5rem}
+  .ticker-item::after{content:'✦';margin-left:2.5rem;opacity:0.5}
+
+  .hero{height:100vh;display:flex;align-items:center;justify-content:center;position:relative;overflow:hidden}
+  .hero-img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;filter:brightness(0.35)}
+  .hero-content{text-align:center;z-index:2;animation:fadeUp 1s ease both;padding:0 1.5rem}
+  .hero-label{font-size:0.72rem;letter-spacing:0.4em;text-transform:uppercase;color:var(--gold);margin-bottom:1.5rem}
+  .hero-title{font-family:'Playfair Display',serif;font-size:clamp(3rem,8vw,7rem);line-height:1.05;font-weight:700;margin-bottom:1rem}
+  .hero-title em{display:block;font-style:italic;color:var(--gold)}
+  .hero-sub{color:rgba(250,249,246,0.6);font-weight:300;letter-spacing:0.08em;font-size:1rem;margin-bottom:3rem;max-width:420px;margin-left:auto;margin-right:auto}
+  .btn-group{display:flex;gap:1rem;justify-content:center;flex-wrap:wrap}
+  .btn-primary{background:var(--gold);color:var(--black);padding:0.85rem 2.5rem;font-size:0.78rem;font-weight:500;letter-spacing:0.2em;text-transform:uppercase;border:none;cursor:pointer;transition:all 0.3s;font-family:'Jost',sans-serif;text-decoration:none;display:inline-block}
+  .btn-primary:hover{background:var(--white);transform:translateY(-2px)}
+  .btn-outline{background:transparent;color:var(--white);padding:0.85rem 2.5rem;font-size:0.78rem;font-weight:500;letter-spacing:0.2em;text-transform:uppercase;border:1px solid rgba(250,249,246,0.4);cursor:pointer;transition:all 0.3s;font-family:'Jost',sans-serif;text-decoration:none;display:inline-block}
+  .btn-outline:hover{border-color:var(--gold);color:var(--gold)}
+  .scroll-indicator{position:absolute;bottom:2.5rem;left:50%;transform:translateX(-50%);display:flex;flex-direction:column;align-items:center;gap:0.5rem;color:rgba(250,249,246,0.4);font-size:0.65rem;letter-spacing:0.2em;text-transform:uppercase}
+  .scroll-line{width:1px;height:50px;background:linear-gradient(to bottom,var(--gold),transparent);animation:scrollPulse 2s ease-in-out infinite}
+
+  .section{padding:6rem 3rem}
+  .section-label{font-size:0.7rem;letter-spacing:0.4em;text-transform:uppercase;color:var(--gold);margin-bottom:0.75rem;display:block}
+  .section-title{font-family:'Playfair Display',serif;font-size:clamp(2rem,4vw,3.2rem);font-weight:400;margin-bottom:3.5rem}
+
+  /* CATEGORIES with real images */
+  .categories{display:grid;grid-template-columns:2fr 1fr 1fr;grid-template-rows:420px;gap:3px}
+  .cat-card{position:relative;overflow:hidden;cursor:pointer}
+  .cat-img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;transition:transform 0.7s ease}
+  .cat-card:hover .cat-img{transform:scale(1.07)}
+  .cat-overlay{position:absolute;inset:0;background:linear-gradient(to top,rgba(0,0,0,0.75) 0%,rgba(0,0,0,0.1) 60%)}
+  .cat-info{position:absolute;bottom:0;left:0;right:0;padding:2rem;z-index:2}
+  .cat-tag{display:inline-block;border:1px solid rgba(201,169,110,0.6);color:var(--gold);font-size:0.65rem;letter-spacing:0.25em;text-transform:uppercase;padding:0.3rem 0.8rem;margin-bottom:0.75rem}
+  .cat-name{font-family:'Playfair Display',serif;font-size:1.8rem;font-weight:700;line-height:1.1;margin-bottom:0.4rem}
+  .cat-count{font-size:0.78rem;color:rgba(250,249,246,0.55);letter-spacing:0.1em}
+
+  /* FEATURED PRODUCTS with real images */
+  .featured-bg{background:var(--cream);color:var(--black);padding:6rem 3rem}
+  .featured-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:2rem;margin-top:3.5rem}
+  .product-card{cursor:pointer}
+  .product-img{aspect-ratio:3/4;position:relative;overflow:hidden;margin-bottom:1.25rem}
+  .product-img img{width:100%;height:100%;object-fit:cover;transition:transform 0.6s ease}
+  .product-card:hover .product-img img{transform:scale(1.05)}
+  .prod-badge{position:absolute;top:1rem;left:1rem;background:var(--black);color:var(--gold);font-size:0.62rem;letter-spacing:0.2em;text-transform:uppercase;padding:0.3rem 0.8rem;z-index:2}
+  .wishlist{position:absolute;top:1rem;right:1rem;width:36px;height:36px;background:rgba(250,249,246,0.92);display:flex;align-items:center;justify-content:center;cursor:pointer;font-size:1.1rem;transition:all 0.3s;color:#333;border:none;z-index:2;border-radius:50%}
+  .wishlist:hover,.wishlist.active{background:var(--black);color:var(--gold)}
+  .prod-label{font-size:0.68rem;letter-spacing:0.2em;text-transform:uppercase;color:var(--mid);margin-bottom:0.35rem}
+  .prod-name{font-family:'Playfair Display',serif;font-size:1.1rem;font-weight:400;color:var(--black);margin-bottom:0.5rem}
+  .prod-price{font-size:0.9rem;font-weight:500;color:var(--black)}
+  .prod-price s{color:var(--mid);font-weight:300;margin-left:0.5rem;font-size:0.82rem}
+
+  /* LOOKBOOK STRIP */
+  .lookbook{padding:5rem 3rem;background:#0f0f0f}
+  .lookbook-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:3px;margin-top:2.5rem}
+  .look-item{position:relative;overflow:hidden;aspect-ratio:3/4;cursor:pointer}
+  .look-item img{width:100%;height:100%;object-fit:cover;transition:transform 0.6s ease;filter:brightness(0.85)}
+  .look-item:hover img{transform:scale(1.08);filter:brightness(1)}
+  .look-overlay{position:absolute;inset:0;background:rgba(0,0,0,0);transition:background 0.3s;display:flex;align-items:center;justify-content:center}
+  .look-item:hover .look-overlay{background:rgba(201,169,110,0.15)}
+  .look-label{opacity:0;font-size:0.72rem;letter-spacing:0.3em;text-transform:uppercase;color:var(--white);transition:opacity 0.3s;font-weight:500}
+  .look-item:hover .look-label{opacity:1}
+
+  /* STYLE GUIDE */
+  .tips-section{padding:6rem 3rem;background:var(--black)}
+  .style-tabs{display:flex;margin-bottom:2.5rem;border-bottom:1px solid rgba(250,249,246,0.1);flex-wrap:wrap}
+  .style-tab{padding:0.75rem 1.5rem;font-size:0.75rem;letter-spacing:0.15em;text-transform:uppercase;cursor:pointer;color:rgba(250,249,246,0.4);border-bottom:2px solid transparent;transition:all 0.3s;background:none;border-top:none;border-left:none;border-right:none;font-family:'Jost',sans-serif}
+  .style-tab.active,.style-tab:hover{color:var(--gold);border-bottom-color:var(--gold)}
+  .style-panel{display:none}
+  .style-panel.active{display:block}
+  .outfit-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:1rem}
+  .outfit-card{position:relative;overflow:hidden;cursor:pointer;aspect-ratio:2/3}
+  .outfit-card img{width:100%;height:100%;object-fit:cover;transition:transform 0.5s;filter:brightness(0.75)}
+  .outfit-card:hover img{transform:scale(1.06);filter:brightness(0.9)}
+  .outfit-info{position:absolute;bottom:0;left:0;right:0;padding:1.2rem;background:linear-gradient(to top,rgba(0,0,0,0.8),transparent)}
+  .outfit-name{font-size:0.85rem;font-weight:500;letter-spacing:0.05em;margin-bottom:0.2rem}
+  .outfit-desc{font-size:0.72rem;color:rgba(250,249,246,0.5);font-weight:300}
+
+  .tips-grid{display:grid;grid-template-columns:1fr 1fr;gap:4rem;align-items:center;margin-top:4rem}
+  .tip-item{display:flex;align-items:flex-start;gap:1.25rem;padding:1.5rem 0;border-bottom:1px solid rgba(250,249,246,0.06)}
+  .tip-num{font-family:'Playfair Display',serif;font-size:2rem;font-style:italic;color:var(--gold);opacity:0.5;min-width:2.5rem;line-height:1}
+  .tip-text h4{font-size:0.9rem;font-weight:500;letter-spacing:0.05em;margin-bottom:0.4rem}
+  .tip-text p{font-size:0.82rem;color:rgba(250,249,246,0.45);font-weight:300;line-height:1.6}
+  .tips-img{position:relative;height:480px;overflow:hidden}
+  .tips-img img{width:100%;height:100%;object-fit:cover;filter:brightness(0.8)}
+  .season-badge{position:absolute;top:1.5rem;right:1.5rem;background:var(--gold);color:var(--black);font-size:0.65rem;letter-spacing:0.2em;text-transform:uppercase;padding:0.5rem 1rem;font-weight:500}
+
+  /* CTA */
+  .cta-banner{padding:5rem 3rem;background:var(--gold);text-align:center;color:var(--black)}
+  .cta-banner h2{font-family:'Playfair Display',serif;font-size:clamp(2rem,4vw,3.5rem);font-weight:700;margin-bottom:1rem}
+  .cta-banner p{font-size:0.9rem;font-weight:300;max-width:500px;margin:0 auto 2.5rem;opacity:0.7}
+  .email-row{display:flex;gap:0;max-width:420px;margin:0 auto}
+  .email-row input{flex:1;padding:0.9rem 1.2rem;border:none;font-family:'Jost',sans-serif;font-size:0.85rem;outline:none;background:rgba(10,10,10,0.12)}
+  .email-row input::placeholder{color:rgba(10,10,10,0.45)}
+  .btn-dark{background:var(--black);color:var(--gold);padding:0.9rem 1.8rem;font-size:0.78rem;font-weight:500;letter-spacing:0.15em;text-transform:uppercase;border:none;cursor:pointer;font-family:'Jost',sans-serif;transition:all 0.3s;white-space:nowrap}
+  .btn-dark:hover{background:#1a1510}
+
+  /* FOOTER */
+  footer{background:#050505;padding:3.5rem 3rem 2rem;border-top:1px solid rgba(201,169,110,0.1)}
+  .footer-grid{display:grid;grid-template-columns:1.5fr 1fr 1fr 1fr;gap:3rem;margin-bottom:3rem}
+  .footer-brand p{font-size:0.82rem;color:rgba(250,249,246,0.35);line-height:1.8;margin-top:1rem;font-weight:300;max-width:220px}
+  .footer-col h5{font-size:0.7rem;letter-spacing:0.3em;text-transform:uppercase;color:var(--gold);margin-bottom:1.25rem}
+  .footer-col ul{list-style:none}
+  .footer-col li{margin-bottom:0.7rem}
+  .footer-col a{color:rgba(250,249,246,0.4);text-decoration:none;font-size:0.82rem;font-weight:300;transition:color 0.3s}
+  .footer-col a:hover{color:var(--gold)}
+  .footer-bottom{display:flex;justify-content:space-between;align-items:center;padding-top:2rem;border-top:1px solid rgba(250,249,246,0.06);font-size:0.72rem;color:rgba(250,249,246,0.25);flex-wrap:wrap;gap:1rem}
+
+  @keyframes fadeUp{from{opacity:0;transform:translateY(40px)}to{opacity:1;transform:translateY(0)}}
+  @keyframes scrollPulse{0%,100%{opacity:0.4}50%{opacity:1}}
+  @keyframes ticker{from{transform:translateX(0)}to{transform:translateX(-50%)}}
+
+  @media(max-width:768px){
+    nav{padding:1rem 1.5rem}
+    .nav-links{display:none;flex-direction:column;position:absolute;top:100%;left:0;width:100%;background:rgba(10,10,10,0.98);padding:1.5rem;gap:1.5rem;border-bottom:1px solid rgba(201,169,110,0.15)}
+    .nav-links.open{display:flex}
+    .hamburger{display:flex}
+    .section{padding:4rem 1.5rem}
+    .categories{grid-template-columns:1fr;grid-template-rows:auto}
+    .cat-card{height:300px}
+    .featured-bg{padding:4rem 1.5rem}
+    .featured-grid{grid-template-columns:1fr 1fr;gap:1rem}
+    .lookbook{padding:3rem 1.5rem}
+    .lookbook-grid{grid-template-columns:1fr 1fr}
+    .outfit-grid{grid-template-columns:1fr 1fr}
+    .tips-section{padding:4rem 1.5rem}
+    .tips-grid{grid-template-columns:1fr}
+    .tips-img{height:300px}
+    .footer-grid{grid-template-columns:1fr 1fr;gap:2rem}
+    .cta-banner{padding:3.5rem 1.5rem}
+    footer{padding:2.5rem 1.5rem 1.5rem}
+    .email-row{flex-direction:column}
+    .email-row input,.btn-dark{width:100%}
+  }
+  @media(max-width:480px){
+    .featured-grid{grid-template-columns:1fr}
+    .footer-grid{grid-template-columns:1fr}
+    .lookbook-grid{grid-template-columns:1fr 1fr}
+  }
+</style>
+</head>
+<body>
+
+<nav>
+  <div class="logo">Voilà</div>
+  <div class="nav-links" id="navLinks">
+    <a href="#">Women</a>
+    <a href="#">Men</a>
+    <a href="#">Accessories</a>
+    <a href="#">Lookbook</a>
+    <a href="#">Sale</a>
+  </div>
+  <div class="hamburger" onclick="toggleNav()">
+    <span></span><span></span><span></span>
+  </div>
+</nav>
+
+<div class="ticker" style="margin-top:64px">
+  <div class="ticker-inner">
+    <span class="ticker-item">Free shipping on orders above ₹2000</span>
+    <span class="ticker-item">New Summer Collection 2026</span>
+    <span class="ticker-item">Exclusive Member Discounts</span>
+    <span class="ticker-item">Sustainable Fashion Forward</span>
+    <span class="ticker-item">Free shipping on orders above ₹2000</span>
+    <span class="ticker-item">New Summer Collection 2026</span>
+    <span class="ticker-item">Exclusive Member Discounts</span>
+    <span class="ticker-item">Sustainable Fashion Forward</span>
+  </div>
+</div>
+
+<!-- HERO -->
+<div class="hero">
+  <img class="hero-img" src="https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=1600&q=80" alt="Fashion Hero">
+  <div class="hero-content">
+    <p class="hero-label">Summer Collection 2026</p>
+    <h1 class="hero-title">Dress Your <em>Story</em></h1>
+    <p class="hero-sub">Curated styles that speak before you do. Fashion that defines who you are.</p>
+    <div class="btn-group">
+      <a href="#" class="btn-primary">Shop Women</a>
+      <a href="#" class="btn-outline">Shop Men</a>
+    </div>
+  </div>
+  <div class="scroll-indicator">
+    <div class="scroll-line"></div>
+    <span>Scroll</span>
+  </div>
+</div>
+
+<!-- CATEGORIES -->
+<div class="section">
+  <span class="section-label">Shop by Category</span>
+  <h2 class="section-title">Find Your <em style="font-family:'Playfair Display',serif;font-style:italic">Aesthetic</em></h2>
+  <div class="categories">
+    <div class="cat-card">
+      <img class="cat-img" src="https://images.unsplash.com/photo-1594938298603-c8148c4b8e8e?w=900&q=80" alt="Women Collection">
+      <div class="cat-overlay"></div>
+      <div class="cat-info">
+        <div class="cat-tag">New Arrivals</div>
+        <div class="cat-name">Women's<br>Collection</div>
+        <div class="cat-count">240+ Styles →</div>
+      </div>
+    </div>
+    <div class="cat-card">
+      <img class="cat-img" src="https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=600&q=80" alt="Men Collection">
+      <div class="cat-overlay"></div>
+      <div class="cat-info">
+        <div class="cat-tag">Essentials</div>
+        <div class="cat-name">Men's<br>Wardrobe</div>
+        <div class="cat-count">180+ Styles →</div>
+      </div>
+    </div>
+    <div class="cat-card">
+      <img class="cat-img" src="https://images.unsplash.com/photo-1548036328-c9fa89d128fa?w=600&q=80" alt="Accessories">
+      <div class="cat-overlay"></div>
+      <div class="cat-info">
+        <div class="cat-tag">Premium</div>
+        <div class="cat-name">Accessories<br>& More</div>
+        <div class="cat-count">95+ Pieces →</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- FEATURED PRODUCTS -->
+<div class="featured-bg">
+  <span class="section-label" style="color:var(--mid)">Editor's Picks</span>
+  <h2 class="section-title" style="color:var(--black)">Trending <em style="font-family:'Playfair Display',serif;font-style:italic">Right Now</em></h2>
+  <div class="featured-grid">
+    <div class="product-card">
+      <div class="product-img">
+        <img src="https://images.unsplash.com/photo-1583391733956-3750e0ff4e8b?w=600&q=80" alt="Ivory Silk Kurta Set">
+        <div class="prod-badge">Bestseller</div>
+        <button class="wishlist" onclick="toggleWish(this)">♡</button>
+      </div>
+      <div class="prod-label">Women · Ethnic</div>
+      <div class="prod-name">Ivory Silk Kurta Set</div>
+      <div class="prod-price">₹3,499 <s>₹5,200</s></div>
+    </div>
+    <div class="product-card">
+      <div class="product-img">
+        <img src="https://images.unsplash.com/photo-1602810318383-e386cc2a3ccf?w=600&q=80" alt="Linen Blend Shirt">
+        <div class="prod-badge">New</div>
+        <button class="wishlist" onclick="toggleWish(this)">♡</button>
+      </div>
+      <div class="prod-label">Men · Casual</div>
+      <div class="prod-name">Linen Blend Shirt</div>
+      <div class="prod-price">₹1,899 <s>₹2,800</s></div>
+    </div>
+    <div class="product-card">
+      <div class="product-img">
+        <img src="https://images.unsplash.com/photo-1590874103328-eac38a683ce7?w=600&q=80" alt="Handcrafted Tote Bag">
+        <div class="prod-badge">Limited</div>
+        <button class="wishlist" onclick="toggleWish(this)">♡</button>
+      </div>
+      <div class="prod-label">Accessories</div>
+      <div class="prod-name">Handcrafted Tote Bag</div>
+      <div class="prod-price">₹2,199</div>
+    </div>
+  </div>
+</div>
+
+<!-- LOOKBOOK -->
+<div class="lookbook">
+  <span class="section-label">Summer '26</span>
+  <h2 class="section-title">Lookbook</h2>
+  <div class="lookbook-grid">
+    <div class="look-item">
+      <img src="https://images.unsplash.com/photo-1469334031218-e382a71b716b?w=500&q=80" alt="Look 1">
+      <div class="look-overlay"><span class="look-label">Shop Look</span></div>
+    </div>
+    <div class="look-item">
+      <img src="https://images.unsplash.com/photo-1515886657613-9f3515b0c78f?w=500&q=80" alt="Look 2">
+      <div class="look-overlay"><span class="look-label">Shop Look</span></div>
+    </div>
+    <div class="look-item">
+      <img src="https://images.unsplash.com/photo-1529139574466-a303027c1d8b?w=500&q=80" alt="Look 3">
+      <div class="look-overlay"><span class="look-label">Shop Look</span></div>
+    </div>
+    <div class="look-item">
+      <img src="https://images.unsplash.com/photo-1487222477894-8943e31ef7b2?w=500&q=80" alt="Look 4">
+      <div class="look-overlay"><span class="look-label">Shop Look</span></div>
+    </div>
+  </div>
+</div>
+
+<!-- STYLE GUIDE -->
+<div class="tips-section">
+  <span class="section-label">How to Wear It</span>
+  <h2 class="section-title">Style <em style="font-family:'Playfair Display',serif;font-style:italic">Guide</em></h2>
+  <div class="style-tabs">
+    <button class="style-tab active" onclick="switchTab(this,'casual')">Casual</button>
+    <button class="style-tab" onclick="switchTab(this,'ethnic')">Ethnic</button>
+    <button class="style-tab" onclick="switchTab(this,'formal')">Formal</button>
+    <button class="style-tab" onclick="switchTab(this,'party')">Party</button>
+  </div>
+  <div id="tab-casual" class="style-panel active">
+    <div class="outfit-grid">
+      <div class="outfit-card">
+        <img src="https://images.unsplash.com/photo-1521572163474-6864f9cf17ab?w=400&q=80" alt="Linen">
+        <div class="outfit-info"><div class="outfit-name">Linen & Ease</div><div class="outfit-desc">Breathable & effortless</div></div>
+      </div>
+      <div class="outfit-card">
+        <img src="https://images.unsplash.com/photo-1542272604-787c3835535d?w=400&q=80" alt="Denim">
+        <div class="outfit-info"><div class="outfit-name">Denim Days</div><div class="outfit-desc">Classic blue forever</div></div>
+      </div>
+      <div class="outfit-card">
+        <img src="https://images.unsplash.com/photo-1539109136881-3be0616acf4b?w=400&q=80" alt="Co-ord">
+        <div class="outfit-info"><div class="outfit-name">Co-ord Sets</div><div class="outfit-desc">Match made in heaven</div></div>
+      </div>
+      <div class="outfit-card">
+        <img src="https://images.unsplash.com/photo-1552374196-1ab2a1c593e8?w=400&q=80" alt="Street">
+        <div class="outfit-info"><div class="outfit-name">Streetwear</div><div class="outfit-desc">Bold & unapologetic</div></div>
+      </div>
+    </div>
+  </div>
+  <div id="tab-ethnic" class="style-panel">
+    <div class="outfit-grid">
+      <div class="outfit-card">
+        <img src="https://images.unsplash.com/photo-1610030469983-98e550d6193c?w=400&q=80" alt="Kurta">
+        <div class="outfit-info"><div class="outfit-name">Kurta Sets</div><div class="outfit-desc">Timeless Indian elegance</div></div>
+      </div>
+      <div class="outfit-card">
+        <img src="https://images.unsplash.com/photo-1583391733956-3750e0ff4e8b?w=400&q=80" alt="Saree">
+        <div class="outfit-info"><div class="outfit-name">Saree Drapes</div><div class="outfit-desc">6 yards of grace</div></div>
+      </div>
+      <div class="outfit-card">
+        <img src="https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=400&q=80" alt="Bandhgala">
+        <div class="outfit-info"><div class="outfit-name">Bandhgala</div><div class="outfit-desc">Regal men's fusion</div></div>
+      </div>
+      <div class="outfit-card">
+        <img src="https://images.unsplash.com/photo-1594938298603-c8148c4b8e8e?w=400&q=80" alt="Lehenga">
+        <div class="outfit-info"><div class="outfit-name">Lehenga</div><div class="outfit-desc">Festive celebration wear</div></div>
+      </div>
+    </div>
+  </div>
+  <div id="tab-formal" class="style-panel">
+    <div class="outfit-grid">
+      <div class="outfit-card">
+        <img src="https://images.unsplash.com/photo-1600091166971-7f9faad6c293?w=400&q=80" alt="Blazer">
+        <div class="outfit-info"><div class="outfit-name">Blazer Edit</div><div class="outfit-desc">Power dressing 101</div></div>
+      </div>
+      <div class="outfit-card">
+        <img src="https://images.unsplash.com/photo-1473966968600-fa801b869a1a?w=400&q=80" alt="Trousers">
+        <div class="outfit-info"><div class="outfit-name">Tailored Trousers</div><div class="outfit-desc">Sharp & polished</div></div>
+      </div>
+      <div class="outfit-card">
+        <img src="https://images.unsplash.com/photo-1487222477894-8943e31ef7b2?w=400&q=80" alt="Workwear">
+        <div class="outfit-info"><div class="outfit-name">Workwear Sets</div><div class="outfit-desc">Office-ready ensembles</div></div>
+      </div>
+      <div class="outfit-card">
+        <img src="https://images.unsplash.com/photo-1602810318383-e386cc2a3ccf?w=400&q=80" alt="Formal Kurta">
+        <div class="outfit-info"><div class="outfit-name">Formal Kurta</div><div class="outfit-desc">Cultural professionalism</div></div>
+      </div>
+    </div>
+  </div>
+  <div id="tab-party" class="style-panel">
+    <div class="outfit-grid">
+      <div class="outfit-card">
+        <img src="https://images.unsplash.com/photo-1529139574466-a303027c1d8b?w=400&q=80" alt="Glam">
+        <div class="outfit-info"><div class="outfit-name">Glam Night</div><div class="outfit-desc">Shine without trying</div></div>
+      </div>
+      <div class="outfit-card">
+        <img src="https://images.unsplash.com/photo-1515886657613-9f3515b0c78f?w=400&q=80" alt="Velvet">
+        <div class="outfit-info"><div class="outfit-name">Velvet Dreams</div><div class="outfit-desc">Luxe & opulent</div></div>
+      </div>
+      <div class="outfit-card">
+        <img src="https://images.unsplash.com/photo-1469334031218-e382a71b716b?w=400&q=80" alt="Sequin">
+        <div class="outfit-info"><div class="outfit-name">Sequin Glow</div><div class="outfit-desc">Dance floor ready</div></div>
+      </div>
+      <div class="outfit-card">
+        <img src="https://images.unsplash.com/photo-1539109136881-3be0616acf4b?w=400&q=80" alt="Cocktail">
+        <div class="outfit-info"><div class="outfit-name">Cocktail Cuts</div><div class="outfit-desc">Smart & stylish</div></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="tips-grid">
+    <div>
+      <div class="tip-item">
+        <div class="tip-num">01</div>
+        <div class="tip-text"><h4>Layer for depth</h4><p>Add a light jacket or dupatta over basics to elevate a simple look instantly without extra effort.</p></div>
+      </div>
+      <div class="tip-item">
+        <div class="tip-num">02</div>
+        <div class="tip-text"><h4>One statement piece</h4><p>Let one item — bold earrings, a printed kurta, or a standout bag — carry the whole outfit.</p></div>
+      </div>
+      <div class="tip-item">
+        <div class="tip-num">03</div>
+        <div class="tip-text"><h4>Fit is everything</h4><p>Well-fitted clothes in any style always look more polished than expensive ill-fitting ones.</p></div>
+      </div>
+    </div>
+    <div class="tips-img">
+      <img src="https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=700&q=80" alt="Style Tip">
+      <div class="season-badge">Summer '26</div>
+    </div>
+  </div>
+</div>
+
+<!-- CTA -->
+<div class="cta-banner">
+  <h2>Join the Voilà Circle</h2>
+  <p>Get early access to new drops, exclusive member discounts, and personalized style recommendations.</p>
+  <div class="email-row">
+    <input type="email" placeholder="Enter your email address">
+    <button class="btn-dark">Subscribe</button>
+  </div>
+</div>
+
+<!-- FOOTER -->
+<footer>
+  <div class="footer-grid">
+    <div class="footer-brand">
+      <div class="logo" style="font-size:1.4rem">Voilà</div>
+      <p>Where every outfit tells a story. Premium fashion curated for the modern Indian wardrobe.</p>
+    </div>
+    <div class="footer-col">
+      <h5>Shop</h5>
+      <ul>
+        <li><a href="#">Women</a></li>
+        <li><a href="#">Men</a></li>
+        <li><a href="#">Accessories</a></li>
+        <li><a href="#">Sale</a></li>
+        <li><a href="#">New Arrivals</a></li>
+      </ul>
+    </div>
+    <div class="footer-col">
+      <h5>Help</h5>
+      <ul>
+        <li><a href="#">Size Guide</a></li>
+        <li><a href="#">Track Order</a></li>
+        <li><a href="#">Returns</a></li>
+        <li><a href="#">Contact Us</a></li>
+      </ul>
+    </div>
+    <div class="footer-col">
+      <h5>Follow</h5>
+      <ul>
+        <li><a href="#">Instagram</a></li>
+        <li><a href="#">Pinterest</a></li>
+        <li><a href="#">YouTube</a></li>
+        <li><a href="#">WhatsApp</a></li>
+      </ul>
+    </div>
+  </div>
+  <div class="footer-bottom">
+    <span>© 2026 Voilà Fashion. All rights reserved.</span>
+    <span>Made with love in India 🇮🇳</span>
+  </div>
+</footer>
+
+<script>
+function toggleNav(){document.getElementById('navLinks').classList.toggle('open')}
+function switchTab(el,name){
+  document.querySelectorAll('.style-tab').forEach(t=>t.classList.remove('active'));
+  document.querySelectorAll('.style-panel').forEach(p=>p.classList.remove('active'));
+  el.classList.add('active');
+  document.getElementById('tab-'+name).classList.add('active');
+}
+function toggleWish(btn){
+  btn.classList.toggle('active');
+  btn.textContent=btn.classList.contains('active')?'♥':'♡';
+}
+</script>
+</body>
+</html>
